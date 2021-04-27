@@ -24,7 +24,7 @@ namespace ariel
         NumberWithUnits operator-() const;
         NumberWithUnits operator+() const;
         NumberWithUnits operator+(const NumberWithUnits &num) const;
-        NumberWithUnits operator+(double &num) const;
+        NumberWithUnits operator+(double num) const;
         NumberWithUnits operator-(const NumberWithUnits &num) const;
         friend NumberWithUnits operator*(const NumberWithUnits &num, double x);
         friend NumberWithUnits operator*(double x, const NumberWithUnits &num);

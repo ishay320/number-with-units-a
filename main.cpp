@@ -7,15 +7,15 @@ int main(int argc, char const *argv[])
 {
 
     NumberWithUnits x{1, "km"};
-    ifstream units_file{"filename.txt"};
+    NumberWithUnits y{999, "m"};
+    NumberWithUnits z{100, "ton"};
+    ifstream units_file{"filename1.txt"};
     x.read_units(units_file);
     cout << x.getName() << endl;
-    cout << x.getNumber() << endl;
+    cout<<"test: " << (y!=x ) << endl;
     //x.leagalName("");
-    cout << (unitMap.begin() == unitMap.end()) << endl;
-    cout << x.convert(1,"km","ce") << endl;
-    cout << "" << endl;
-    cout << "" << endl;
+    cout << x.getNumber() << endl;
+    cout << y << endl;
     cout << "" << endl;
     cout << "" << endl;
     return 0;
