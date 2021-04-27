@@ -1,16 +1,21 @@
 #include <iostream>
-#include <fstream>
-#include <sstream>
-#include <stdexcept>
+
 #include <string>
 #include "NumberWithUnits.hpp"
-#include <algorithm>
+//#include <algorithm>
 
 using namespace std;
+constexpr double EPS = 0.00001;
+
 namespace ariel
 {
-    NumberWithUnits::NumberWithUnits(double num, string name)
+    NumberWithUnits::NumberWithUnits(double num, string const &name)
     {
+        if (!leagalName(name))
+        {
+            throw invalid_argument(name + " is not leagal name");
+        }
+
         _num = num;
         _name = name;
     }
@@ -19,10 +24,31 @@ namespace ariel
         _num = num._num;
         _name = num._name;
     }
+
+    void update_map(const string &src, const string &dest)
+    {
+        for (auto &unit : unitMap[dest])
+        {
+            if (unit.first != src)
+            {
+                double new_size = unitMap[src][dest] * unit.second;
+                unitMap[src][unit.first] = new_size;
+                unitMap[unit.first][src] = 1 / new_size;
+            }
+        }
+    }
     void NumberWithUnits::read_units(std::ifstream &units_file)
     {
-        
-    } ////////////////////////////////
+        string dump, strA, strB;
+        double size1 = 0, size2 = 0;
+        while (units_file >> size1 >> strA >> dump >> size2 >> strB)
+        {
+            unitMap[strA][strB] = size2;
+            unitMap[strB][strA] = 1 / size2;
+            update_map(strA, strB);
+            update_map(strB, strA);
+        }
+    }
 
     NumberWithUnits NumberWithUnits::operator-() const
     {
@@ -39,7 +65,7 @@ namespace ariel
         NumberWithUnits tmp{_num + convert(num._num, num._name, _name), _name};
         return tmp;
     }
-    NumberWithUnits NumberWithUnits::operator+(double &num) const
+    NumberWithUnits NumberWithUnits::operator+(double num) const
     {
         NumberWithUnits tmp{_num + num, _name};
         return tmp;
@@ -101,22 +127,40 @@ namespace ariel
     istream &operator>>(istream &in, NumberWithUnits &num)
     {
         double tmpNum = 0;
+        char c = 0;
+        while (in.peek() == ' ' || in.peek() == '[' || in.peek() == ']')
+        {
+            in.get(c);
+        }
         in >> tmpNum;
         num.setNumber(tmpNum);
         string tmpStr;
         in >> tmpStr;
-        tmpStr.erase(std::remove(tmpStr.begin(), tmpStr.end(), '['), tmpStr.end());
-        tmpStr.erase(std::remove(tmpStr.begin(), tmpStr.end(), ']'), tmpStr.end());
+        // tmpStr.erase(std::remove(tmpStr.begin(), tmpStr.end(), '['), tmpStr.end());
+        // tmpStr.erase(std::remove(tmpStr.begin(), tmpStr.end(), ']'), tmpStr.end());
+        string output;
+        for (size_t i = 0; i < tmpStr.size(); ++i)
+        {
+            if (tmpStr[i] != ']' && tmpStr[i] != '[')
+            {
+                output += tmpStr[i];
+            }
+        }
+        tmpStr = output;
         if (tmpStr.empty())
         {
             in >> tmpStr;
         }
-
-        if (!num.leagalName(tmpStr))
+        if (!ariel::NumberWithUnits::leagalName(tmpStr))
         {
-            throw "name exception";
+            throw invalid_argument(tmpStr + " is not leagal name");
         }
         num.setName(tmpStr);
+        // if (in.peek() != EOF)
+        // {
+        //     operator>>(in, num);
+        // }
+
         return in;
     }
     NumberWithUnits &NumberWithUnits::operator+=(const NumberWithUnits &num)
@@ -146,79 +190,41 @@ namespace ariel
     }
     bool NumberWithUnits::operator<(const NumberWithUnits &num) const
     {
-        // if (0 < _num - convert(num.getNumber(), num.getName(), getName()))
-        // {
-        //     return true;
-        // }
-
-        if (getName().compare(num.getName()) == 0)
-        {
-            if (_num < num._num)
-            {
-                return true;
-            }
-        }
-        return false;
+        return (0 > _num - convert(num.getNumber(), num.getName(), getName()));
     }
     bool NumberWithUnits::operator<=(const NumberWithUnits &num) const
     {
-        if (getName().compare(num.getName()) == 0)
-        {
-            if (_num <= num._num)
-            {
-                return true;
-            }
-        }
-        return false;
+        return (0 >= (_num - convert(num.getNumber(), num.getName(), getName())));
     }
     bool NumberWithUnits::operator>(const NumberWithUnits &num) const
     {
-        if (getName().compare(num.getName()) == 0)
-        {
-            if (_num > num._num)
-            {
-                return true;
-            }
-        }
-        return false;
+        return (0 < _num - convert(num.getNumber(), num.getName(), getName()));
     }
     bool NumberWithUnits::operator>=(const NumberWithUnits &num) const
     {
-        if (getName().compare(num.getName()) == 0)
-        {
-            if (_num >= num._num)
-            {
-                return true;
-            }
-        }
-        return false;
+        return (0 <= _num - convert(num.getNumber(), num.getName(), getName()));
     }
     bool NumberWithUnits::operator==(const NumberWithUnits &num) const
     {
-        if (getName().compare(num.getName()) == 0)
-        {
-            if (num._num == _num)
-            {
-                return true;
-            }
-        }
-        return false;
+        return (EPS > _num - convert(num.getNumber(), num.getName(), getName()) &&
+                -EPS < _num - convert(num.getNumber(), num.getName(), getName()));
     }
     bool NumberWithUnits::operator!=(const NumberWithUnits &num) const
     {
-        if (getName().compare(num.getName()) == 0)
-        {
-            if (num._num == _num)
-            {
-                return false;
-            }
-        }
-        return true;
+        return !((*this) == num);
     }
 
-    double NumberWithUnits::convert(double num, std::string from, std::string to)
+    double NumberWithUnits::convert(double num, std::string const &from, std::string const &to)
     {
-        return num; ////////////////////////
+        if (from != to && unitMap[from].find(to) == unitMap[from].end())
+        {
+            throw invalid_argument(from + " ->" + to + " dont exist in data ");
+        }
+        if (from == to)
+        {
+            return num;
+        }
+        return num * unitMap[from][to];
     }
     std::string NumberWithUnits::getName() const
     {
@@ -228,9 +234,10 @@ namespace ariel
     {
         return this->_num;
     }
-    bool NumberWithUnits::leagalName(const std::string &name) const
+    bool NumberWithUnits::leagalName(const std::string &name)
     {
-        return true;
+
+        return (unitMap.find(name) != unitMap.end());
     }
 
 };
