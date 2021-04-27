@@ -7,10 +7,11 @@
 #include <algorithm>
 #include <map>
 using namespace std;
-#define EPS 0.00001
+constexpr double EPS = 0.00001;
+
 namespace ariel
 {
-    NumberWithUnits::NumberWithUnits(double num, string name)
+    NumberWithUnits::NumberWithUnits(double num, string const &name)
     {
         if (!leagalName(name))
         {
@@ -128,9 +129,11 @@ namespace ariel
     istream &operator>>(istream &in, NumberWithUnits &num)
     {
         double tmpNum = 0;
-        char c;
+        char c = 0;
         while (in.peek() == ' ' || in.peek() == '[' || in.peek() == ']')
+        {
             in.get(c);
+        }
         in >> tmpNum;
         num.setNumber(tmpNum);
         string tmpStr;
@@ -141,7 +144,7 @@ namespace ariel
         {
             in >> tmpStr;
         }
-        if (!num.leagalName(tmpStr))
+        if (!ariel::NumberWithUnits::leagalName(tmpStr))
         {
             throw invalid_argument(tmpStr + " is not leagal name");
         }
@@ -180,57 +183,31 @@ namespace ariel
     }
     bool NumberWithUnits::operator<(const NumberWithUnits &num) const
     {
-
-        if (0 > _num - convert(num.getNumber(), num.getName(), getName()))
-        {
-            return true;
-        }
-
-        return false;
+        return (0 > _num - convert(num.getNumber(), num.getName(), getName()));
     }
     bool NumberWithUnits::operator<=(const NumberWithUnits &num) const
     {
-
-        if (0 >= (_num - convert(num.getNumber(), num.getName(), getName())))
-        {
-            return true;
-        }
-
-        return false;
+        return (0 >= (_num - convert(num.getNumber(), num.getName(), getName())));
     }
     bool NumberWithUnits::operator>(const NumberWithUnits &num) const
     {
-        if (0 < _num - convert(num.getNumber(), num.getName(), getName()))
-        {
-            return true;
-        }
-        return false;
+        return (0 < _num - convert(num.getNumber(), num.getName(), getName()));
     }
     bool NumberWithUnits::operator>=(const NumberWithUnits &num) const
     {
-        if (0 <= _num - convert(num.getNumber(), num.getName(), getName()))
-        {
-            return true;
-        }
-        return false;
+        return (0 <= _num - convert(num.getNumber(), num.getName(), getName()));
     }
     bool NumberWithUnits::operator==(const NumberWithUnits &num) const
     {
-
-        if (EPS > _num - convert(num.getNumber(), num.getName(), getName()) &&
-            -EPS < _num - convert(num.getNumber(), num.getName(), getName()))
-        {
-            return true;
-        }
-
-        return false;
+        return (EPS > _num - convert(num.getNumber(), num.getName(), getName()) &&
+                -EPS < _num - convert(num.getNumber(), num.getName(), getName()));
     }
     bool NumberWithUnits::operator!=(const NumberWithUnits &num) const
     {
         return !((*this) == num);
     }
 
-    double NumberWithUnits::convert(double num, std::string from, std::string to)
+    double NumberWithUnits::convert(double num, std::string const &from, std::string const &to)
     {
         if (from != to && unitMap[from].find(to) == unitMap[from].end())
         {
@@ -250,7 +227,7 @@ namespace ariel
     {
         return this->_num;
     }
-    bool NumberWithUnits::leagalName(const std::string &name) const
+    bool NumberWithUnits::leagalName(const std::string &name)
     {
 
         return (unitMap.find(name) != unitMap.end());

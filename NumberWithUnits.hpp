@@ -17,7 +17,7 @@ namespace ariel
         std::string _name;
 
     public:
-        NumberWithUnits(double num, std::string name);
+        NumberWithUnits(double num, std::string const &name);
         NumberWithUnits(const NumberWithUnits &num);
         static void read_units(std::ifstream &units_file);
 
@@ -51,7 +51,7 @@ namespace ariel
         bool operator==(const NumberWithUnits &num) const;
         bool operator!=(const NumberWithUnits &num) const;
 
-        static double convert(double num, std::string from, std::string to);
+        static double convert(double num, std::string const &from, std::string const &to);
         void setNumber(const double x) { _num = x; }
         void setName(const std::string name)
         {
@@ -59,6 +59,6 @@ namespace ariel
         }
         std::string getName() const;
         double getNumber() const;
-        bool leagalName(const std::string &name) const;
+        static bool leagalName(const std::string &name);
     };
 };
