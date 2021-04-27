@@ -21,14 +21,16 @@ namespace ariel
         NumberWithUnits operator-() const;
         NumberWithUnits operator+() const;
         NumberWithUnits operator+(const NumberWithUnits &num) const;
+        NumberWithUnits operator+(double &num) const;
         NumberWithUnits operator-(const NumberWithUnits &num) const;
-        friend NumberWithUnits operator*(const double x, const NumberWithUnits &num);
+        friend NumberWithUnits operator*(const NumberWithUnits &num, double x);
+        friend NumberWithUnits operator*(double x, const NumberWithUnits &num);
         friend NumberWithUnits operator/(const double x, const NumberWithUnits &num);
 
-        NumberWithUnits &operator--(int);
-        NumberWithUnits &operator++(int);
-        NumberWithUnits operator--();
-        NumberWithUnits operator++();
+        NumberWithUnits operator--(int);
+        NumberWithUnits operator++(int);
+        NumberWithUnits &operator--();
+        NumberWithUnits &operator++();
 
         friend std::ostream &operator<<(std::ostream &out, const NumberWithUnits &num);
         friend std::istream &operator>>(std::istream &in, NumberWithUnits &num);
