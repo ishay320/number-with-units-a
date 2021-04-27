@@ -5,8 +5,11 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <map>
+
 namespace ariel
 {
+    static std::map<std::string, std::map<std::string, double>> unitMap; //global
     class NumberWithUnits
     {
     private:
