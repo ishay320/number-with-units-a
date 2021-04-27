@@ -1,11 +1,9 @@
 #include <iostream>
-#include <fstream>
-#include <sstream>
-#include <stdexcept>
+
 #include <string>
 #include "NumberWithUnits.hpp"
-#include <algorithm>
-#include <map>
+//#include <algorithm>
+
 using namespace std;
 constexpr double EPS = 0.00001;
 
@@ -138,8 +136,17 @@ namespace ariel
         num.setNumber(tmpNum);
         string tmpStr;
         in >> tmpStr;
-        tmpStr.erase(std::remove(tmpStr.begin(), tmpStr.end(), '['), tmpStr.end());
-        tmpStr.erase(std::remove(tmpStr.begin(), tmpStr.end(), ']'), tmpStr.end());
+        // tmpStr.erase(std::remove(tmpStr.begin(), tmpStr.end(), '['), tmpStr.end());
+        // tmpStr.erase(std::remove(tmpStr.begin(), tmpStr.end(), ']'), tmpStr.end());
+        string output;
+        for (size_t i = 0; i < tmpStr.size(); ++i)
+        {
+            if (tmpStr[i] != ']' && tmpStr[i] != '[')
+            {
+                output += tmpStr[i];
+            }
+        }
+        tmpStr = output;
         if (tmpStr.empty())
         {
             in >> tmpStr;
