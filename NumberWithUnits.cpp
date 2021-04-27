@@ -128,6 +128,9 @@ namespace ariel
     istream &operator>>(istream &in, NumberWithUnits &num)
     {
         double tmpNum = 0;
+        char c;
+        while (in.peek() == ' ' || in.peek() == '[' || in.peek() == ']')
+            in.get(c);
         in >> tmpNum;
         num.setNumber(tmpNum);
         string tmpStr;
@@ -138,12 +141,16 @@ namespace ariel
         {
             in >> tmpStr;
         }
-
         if (!num.leagalName(tmpStr))
         {
             throw invalid_argument(tmpStr + " is not leagal name");
         }
         num.setName(tmpStr);
+        // if (in.peek() != EOF)
+        // {
+        //     operator>>(in, num);
+        // }
+
         return in;
     }
     NumberWithUnits &NumberWithUnits::operator+=(const NumberWithUnits &num)
